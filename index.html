@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Discord用 動画圧縮</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<meta name="theme-color" content="#5865F2">
+<link rel="stylesheet" href="style.css">
+<script type="importmap">
+{ "imports": { "mediabunny": "./vendor/mediabunny.min.mjs" } }
+</script>
+</head>
+<body>
+<main>
+  <h1>Discord用 動画圧縮</h1>
+  <p class="note">動画はこの端末の中だけで処理され，外部には送られません．</p>
+
+  <section id="support" hidden></section>
+
+  <section class="card">
+    <label for="target">上限</label>
+    <select id="target">
+      <option value="10">10MB（以前の無料の上限）</option>
+      <option value="20" selected>20MB（無料）</option>
+      <option value="50">50MB（Nitro Basic／ブーストLv2）</option>
+      <option value="100">100MB（ブーストLv3）</option>
+      <option value="500">500MB（Nitro）</option>
+    </select>
+
+    <div id="drop" tabindex="0">
+      <p>ここに動画をドロップ，または</p>
+      <label class="button">動画を選ぶ<input id="file" type="file" accept="video/*" hidden></label>
+    </div>
+  </section>
+
+  <section class="card" id="job" hidden>
+    <p id="fileinfo"></p>
+    <p id="planinfo"></p>
+    <p id="warn" class="warn" hidden></p>
+    <progress id="progress" max="1" value="0"></progress>
+    <p id="status"></p>
+    <button id="cancel" type="button">中止</button>
+  </section>
+
+  <section class="card" id="result" hidden>
+    <p id="resultinfo"></p>
+    <video id="preview" controls playsinline></video>
+    <div class="actions">
+      <button id="share" type="button" hidden>Discordなどに共有</button>
+      <a id="download" class="button" download>保存する</a>
+    </div>
+  </section>
+</main>
+<script type="module" src="app.js"></script>
+</body>
+</html>
