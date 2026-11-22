@@ -22,7 +22,7 @@
   "fallbackType": "customtabs",
   "enableSiteSettingsShortcut": true,
   "orientation": "default",
-  "minSdkVersion": 21,
+  "minSdkVersion": 24,
   "shareTarget": {
     "action": "https://kake256.github.io/discord-compress/share-target",
     "method": "POST",
