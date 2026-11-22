@@ -1,0 +1,70 @@
+# AndroidアプリをTWA（Trusted Web Activity）としてビルドし，リリース「android-latest」にAPKを置く．
+# 署名鍵はリポジトリのSecretから読む（ANDROID_KEYSTORE_B64, ANDROID_KEYSTORE_PASSWORD）．
+# Secretが無いときは使い捨ての鍵で署名する（その場合，次のビルドでは上書きインストールできない）．
+name: Build Android app
+on:
+  push:
+    branches: [main]
+    paths: ['android/**', '.github/workflows/android.yml', 'manifest.webmanifest']
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 20 }
+      - name: Install Bubblewrap
+        run: npm i -g @bubblewrap/cli@1.27.0
+      - name: Configure Bubblewrap (JDK 17 + Android SDK from the runner)
+        run: |
+          mkdir -p ~/.bubblewrap
+          echo "{\"jdkPath\":\"$JAVA_HOME_17_X64\",\"androidSdkPath\":\"$ANDROID_HOME\"}" > ~/.bubblewrap/config.json
+          cat ~/.bubblewrap/config.json
+      - name: Prepare signing key
+        working-directory: android
+        env:
+          KEYSTORE_B64: ${{ secrets.ANDROID_KEYSTORE_B64 }}
+          KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+        run: |
+          if [ -n "$KEYSTORE_B64" ]; then
+            echo "$KEYSTORE_B64" | base64 -d > android.keystore
+            echo "BUBBLEWRAP_KEYSTORE_PASSWORD=$KEYSTORE_PASSWORD" >> $GITHUB_ENV
+            echo "BUBBLEWRAP_KEY_PASSWORD=$KEYSTORE_PASSWORD" >> $GITHUB_ENV
+          else
+            echo "::warning::署名鍵のSecretが無いので，使い捨ての鍵で署名します"
+            PW=$(openssl rand -hex 16)
+            echo "::add-mask::$PW"
+            $JAVA_HOME_17_X64/bin/keytool -genkeypair -keystore android.keystore -alias discordcompress \
+              -keyalg RSA -keysize 2048 -validity 10000 -storepass "$PW" -keypass "$PW" \
+              -dname "CN=discord-compress"
+            echo "BUBBLEWRAP_KEYSTORE_PASSWORD=$PW" >> $GITHUB_ENV
+            echo "BUBBLEWRAP_KEY_PASSWORD=$PW" >> $GITHUB_ENV
+          fi
+      - name: Set version code
+        working-directory: android
+        run: |
+          jq ".appVersionCode = ${{ github.run_number }} | .appVersion = \"1.0.${{ github.run_number }}\"" twa-manifest.json > t.json && mv t.json twa-manifest.json
+      - name: Generate Android project
+        working-directory: android
+        run: bubblewrap update --skipVersionUpgrade
+      - name: Build APK
+        working-directory: android
+        run: bubblewrap build --skipPwaValidation
+      - name: Print signing certificate fingerprint
+        working-directory: android
+        run: $JAVA_HOME_17_X64/bin/keytool -list -v -keystore android.keystore -storepass "$BUBBLEWRAP_KEYSTORE_PASSWORD" | grep SHA256
+      - uses: actions/upload-artifact@v4
+        with:
+          name: discord-compress-apk
+          path: android/app-release-signed.apk
+      - name: Publish to release "android-latest"
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          cp android/app-release-signed.apk discord-compress.apk
+          gh release delete android-latest --yes --cleanup-tag || true
+          gh release create android-latest discord-compress.apk --title "Androidアプリ（最新）" \
+            --notes "ビルド ${{ github.run_number }}（${{ github.sha }}）．APKをスマホで開いてインストールしてください．" --prerelease

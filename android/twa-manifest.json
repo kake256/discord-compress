@@ -1,0 +1,31 @@
+{
+  "packageId": "io.github.kake256.discordcompress",
+  "host": "kake256.github.io",
+  "name": "Discord用 動画圧縮",
+  "launcherName": "動画圧縮",
+  "display": "standalone",
+  "themeColor": "#5865F2",
+  "navigationColor": "#1E1F22",
+  "backgroundColor": "#1E1F22",
+  "enableNotifications": false,
+  "startUrl": "/discord-compress/",
+  "iconUrl": "https://kake256.github.io/discord-compress/icons/icon-512.png",
+  "maskableIconUrl": "https://kake256.github.io/discord-compress/icons/icon-512.png",
+  "webManifestUrl": "https://kake256.github.io/discord-compress/manifest.webmanifest",
+  "fullScopeUrl": "https://kake256.github.io/discord-compress/",
+  "appVersion": "1.0.0",
+  "appVersionCode": 1,
+  "signingKey": { "path": "./android.keystore", "alias": "discordcompress" },
+  "fallbackType": "customtabs",
+  "enableSiteSettingsShortcut": true,
+  "orientation": "default",
+  "minSdkVersion": 21,
+  "shareTarget": {
+    "action": "/discord-compress/share-target",
+    "method": "POST",
+    "enctype": "multipart/form-data",
+    "params": { "files": [{ "name": "video", "accept": ["video/*"] }] }
+  },
+  "features": {},
+  "shortcuts": []
+}
