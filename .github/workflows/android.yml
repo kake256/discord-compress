@@ -23,6 +23,10 @@ jobs:
           mkdir -p ~/.bubblewrap
           echo "{\"jdkPath\":\"$JAVA_HOME_17_X64\",\"androidSdkPath\":\"$ANDROID_HOME\"}" > ~/.bubblewrap/config.json
           cat ~/.bubblewrap/config.json
+          # Bubblewrapは $ANDROID_HOME/bin/sdkmanager を探すが，ランナーでは cmdline-tools/latest/bin にある
+          [ -e "$ANDROID_HOME/bin" ] || sudo ln -s "$ANDROID_HOME/cmdline-tools/latest/bin" "$ANDROID_HOME/bin"
+          # Bubblewrap 1.27.0 が使う build-tools を先に入れておく（ライセンスへの同意を含む）
+          yes | sudo "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --sdk_root="$ANDROID_HOME" "build-tools;36.1.0" > /dev/null
       - name: Prepare signing key
         working-directory: android
         env:
