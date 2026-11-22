@@ -15,17 +15,30 @@
   "fullScopeUrl": "https://kake256.github.io/discord-compress/",
   "appVersion": "1.0.0",
   "appVersionCode": 1,
-  "signingKey": { "path": "./android.keystore", "alias": "discordcompress" },
+  "signingKey": {
+    "path": "./android.keystore",
+    "alias": "discordcompress"
+  },
   "fallbackType": "customtabs",
   "enableSiteSettingsShortcut": true,
   "orientation": "default",
   "minSdkVersion": 21,
   "shareTarget": {
-    "action": "/discord-compress/share-target",
+    "action": "https://kake256.github.io/discord-compress/share-target",
     "method": "POST",
     "enctype": "multipart/form-data",
-    "params": { "files": [{ "name": "video", "accept": ["video/*"] }] }
+    "params": {
+      "files": [
+        {
+          "name": "video",
+          "accept": [
+            "video/*"
+          ]
+        }
+      ]
+    }
   },
   "features": {},
-  "shortcuts": []
+  "shortcuts": [],
+  "splashScreenFadeOutDuration": 300
 }
